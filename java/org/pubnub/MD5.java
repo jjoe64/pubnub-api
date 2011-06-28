@@ -1,7 +1,9 @@
+package org.pubnub;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
- 
+
 public class MD5 {
     public static String getMD5(String input) {
         try {

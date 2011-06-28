@@ -27,6 +27,8 @@ public class Pubnub {
     private String SUBSCRIBE_KEY = "";
     private String SECRET_KEY    = "";
     private boolean SSL          = false;
+    private boolean stopped;
+    private int retrySleep = 4000;
 
     /**
      * PubNub 2.0 Compatibility
@@ -101,14 +103,14 @@ public class Pubnub {
     private JSONArray _request(List<String> url_components) {
         String   json         = "";
         StringBuilder url     = new StringBuilder();
-        Iterator url_iterator = url_components.iterator();
+        Iterator<String> url_iterator = url_components.iterator();
 
         url.append(this.ORIGIN);
 
         // Generate URL with UTF-8 Encoding
         while (url_iterator.hasNext()) {
             try {
-                String url_bit = (String) url_iterator.next();
+                String url_bit = url_iterator.next();
                 url.append("/").append(_encodeURIcomponent(url_bit));
             }
             catch(Exception e) {
@@ -190,7 +192,7 @@ public class Pubnub {
         Callback callback,
         String   timetoken
     ) {
-        while (true) {
+        while (!stopped) {
             try {
                 // Build URL
                 List<String> url = java.util.Arrays.asList(
@@ -211,9 +213,11 @@ public class Pubnub {
                     JSONObject message = messages.optJSONObject(i);
                     if (!callback.execute(message)) return;
                 }
+
+                retrySleep = 4000;
             }
             catch (Exception e) {
-                try { Thread.sleep(1000); }
+                try { Thread.sleep(Math.min(5*60*1000, retrySleep*=2)); }
                 catch(InterruptedException ie) {}
             }
         }
@@ -334,6 +338,10 @@ public class Pubnub {
         return _request(url);
     }
 
+    public void stopLoop() {
+    	stopped=true;
+    }
+
     /**
      * Subscribe
      *
@@ -368,4 +376,3 @@ public class Pubnub {
         return (char)(ch < 10 ? '0' + ch : 'A' + ch - 10);
     }
 }
-

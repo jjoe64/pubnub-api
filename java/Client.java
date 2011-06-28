@@ -1,6 +1,6 @@
 import org.json.*;
-import pubnub.Pubnub;
-import pubnub.Callback;
+import org.pubnub.Callback;
+import org.pubnub.Pubnub;
 
 public class Client {
     public static void main(String [] args) {
